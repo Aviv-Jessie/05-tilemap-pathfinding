@@ -15,10 +15,10 @@ public class TilemapCaveGenerator: MonoBehaviour {
     [SerializeField] Tilemap tilemap = null;
 
     [Tooltip("The tile that represents a wall (an impassable block)")]
-    [SerializeField] TileBase wallTile = null;
+    [SerializeField]public TileBase wallTile = null;
 
     [Tooltip("The tile that represents a floor (a passable block)")]
-    [SerializeField] TileBase floorTile = null;
+    [SerializeField]public TileBase floorTile = null;
 
     [Tooltip("The percent of walls in the initial random map")]
     [Range(0, 1)]
@@ -63,6 +63,8 @@ public class TilemapCaveGenerator: MonoBehaviour {
         if(CacheFloorList != null)
             CacheFloorList.Clear();
         CacheFloorList = null;
+        CacheLeftBottom = Vector3Int.down;
+        CacheRightTop = Vector3Int.down;
     }
 
 
@@ -99,50 +101,53 @@ public class TilemapCaveGenerator: MonoBehaviour {
         }
     }
 
-    //finde left bottom tile that player can walk on.
+    //find closer floor to checkCell. return Vector3Int.left if not have.
+    private Vector3Int findeCloserFloor(Vector3Int checkCell){
+         int[,] data = caveGenerator.GetMap();
+        Vector3Int oldCell = Vector3Int.left;
+        int oldMinDistance = System.Int32.MaxValue;
+
+         for(int i=0; i<gridSize;i++)
+                for(int j=0; j<gridSize ;j++)
+                    if(data[i,j] == 0){
+                        Vector3Int newCell = new Vector3Int(i,j,0);
+                        int newMinDistance = distance(newCell,checkCell);
+                        if(newMinDistance < oldMinDistance){
+                            oldMinDistance = newMinDistance;
+                            oldCell = newCell;
+                        }
+                    }
+
+        return oldCell; 
+    }
+
+    private int distance(Vector3Int newCell,Vector3Int checkCell){
+        return System.Math.Abs(newCell.x - checkCell.x) + System.Math.Abs(newCell.y - checkCell.y);
+    }
+
+   //Vector3Int.down not finde yet.
+    private Vector3Int CacheLeftBottom = Vector3Int.down;
+     //finde left bottom tile that player can walk on.
     //return Vector3Int.left if not have.
     public Vector3Int findeLeftBottomFloor(){
-        int[,] data = caveGenerator.GetMap();
-        for(int i = 0;i <gridSize;i++){
-            //vertical
-            for(int j=0;j <=i;j++){
-                if(data[i,j] == 0)
-                    return new Vector3Int(i,j,0);
-            }
-            //horizontal
-            for(int j=0;j <i;j++){
-                 if(data[j,i] == 0)
-                    return new Vector3Int(j,i,0);
-            }
-
-        }
-        return Vector3Int.left;
-            
-        
+        if(CacheLeftBottom == Vector3Int.down){
+            CacheLeftBottom = findeCloserFloor(Vector3Int.zero);
+        }    
+        return CacheLeftBottom;                                
     }
 
+    //Vector3Int.down not finde yet.
+    private Vector3Int CacheRightTop = Vector3Int.down;
     //like findeLeftBottomFloor just Right Top
      public Vector3Int findeRightTopFloor(){
-        int[,] data = caveGenerator.GetMap();
-        for(int i = gridSize-1;i >= 0;i--){
-            //vertical
-            for(int j=gridSize-1;j >= i;j--){
-                if(data[i,j] == 0)
-                    return new Vector3Int(i,j,0);
-            }
-            //horizontal
-            for(int j=gridSize-1;j >= i;j--){
-                 if(data[j,i] == 0)
-                    return new Vector3Int(j,i,0);
-            }
-
-        }
-        return Vector3Int.left;
-            
-        
+        Vector3Int RightTopCell = new Vector3Int(gridSize-1,gridSize-1,0);
+        if(CacheRightTop == Vector3Int.down){
+            CacheRightTop = findeCloserFloor(RightTopCell);
+        }    
+        return CacheRightTop;                     
     }
 
-     //pull random tile that player can walk on.
+    //pull random tile that player can walk on.
     //return Vector3Int.left if not have.
     private System.Random rand = new System.Random();
     private ArrayList CacheFloorList = null; 
