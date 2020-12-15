@@ -616,6 +616,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 39cdee04f24200945bea1fa73b85d851, type: 2}
   - {fileID: 11400000, guid: f65edefe834e4a2428fcef8a9eed855d, type: 2}
   - {fileID: 11400000, guid: 2346c13f6fdd9ad429446707a204465b, type: 2}
+  grassTiles:
+  - {fileID: 11400000, guid: 149fb7c95775bc842bc8f54055585274, type: 2}
+  - {fileID: 11400000, guid: 054c82a9a84ff1e44b04f76321e0dd1b, type: 2}
+  - {fileID: 11400000, guid: db64633c5e3a9e94d9672e161e9bdb54, type: 2}
 --- !u!1839735485 &274003833
 Tilemap:
   m_ObjectHideFlags: 0
@@ -1193,7 +1197,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 931517247}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a41c467a1b6f70e49ac2e8ee51ee7379, type: 3}
   m_Name: 
@@ -1925,6 +1929,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ffad20306de876c489210481c30d2879, type: 2}
   - {fileID: 11400000, guid: f31112c351685c34ea87fee862cd566d, type: 2}
   - {fileID: 11400000, guid: d6ded0ddad6d3154f940014413db8986, type: 2}
+  - {fileID: 11400000, guid: 054c82a9a84ff1e44b04f76321e0dd1b, type: 2}
+  - {fileID: 11400000, guid: db64633c5e3a9e94d9672e161e9bdb54, type: 2}
   - {fileID: 11400000, guid: 8f2cab6dea1a2d147b231cc92eb1f7e2, type: 2}
 --- !u!1 &2052125880
 GameObject:

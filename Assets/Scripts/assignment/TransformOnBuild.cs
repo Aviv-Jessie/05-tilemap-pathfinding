@@ -35,6 +35,7 @@ public class TransformOnBuild : MonoBehaviour
             break;
         }
 
+        // if there no floor- returned Vector.left (-1). Error.
         if(cellTo != Vector3Int.left){
             //gridLayout.cellSize/2 to transform on cell center and not on gride.
             transform.localPosition = gridLayout.CellToWorld(cellTo) + gridLayout.cellSize/2;
