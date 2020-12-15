@@ -6,7 +6,7 @@ and how to do path-finding using the BFS algorithm.
 ## we chose 4 sections: 4,5,6,10.
 
 
-**section 4:**
+### section 4:
 
 we changed the caveGenerator script - so it will work with 3 different components.
 
@@ -18,7 +18,7 @@ Path:
 
 /Assets/Scripts/4-generation/TileMapCaveGenerator
 
-**section 5:**
+### section 5:
 
 Mining script- Assets/Scripts/assignment/mining.cs
 
@@ -52,7 +52,7 @@ tile pickaxe- for mining in to the mountains
 
 mine picture :Assets/Tiles/pickax.asset
 
-**section 6:**
+### section 6:
 
 TransformForBuild script- Assets/Scripts/assignment/TransformOnBuild.cs
 
@@ -62,7 +62,7 @@ NextLevel script- Assets/Scripts/assignment/NextLevel.cs
 
 works with the gate- and sends the player to the next level.
 
-**section 10:**
+### section 10:
 
 according to www.mybandonware.com- we chose a tile pictures and work with them.
 
