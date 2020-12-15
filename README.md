@@ -85,9 +85,13 @@ Assets/Tiles/grass3.asset
 
 
 ## Instructions:
+
 Space- Mining
+
 arrows- to move
+
 change the zoom- S\W 
+
 
 Your goal- go to the gate at the right top corner of the map.
 
