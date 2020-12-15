@@ -9,6 +9,8 @@ using UnityEngine.Events;
  * 
  * By: Erel Segal-Halevi
  * Since: 2020-12
+ * 
+ * 
  */
 
 public class TilemapCaveGenerator: MonoBehaviour {
@@ -20,12 +22,14 @@ public class TilemapCaveGenerator: MonoBehaviour {
     [Tooltip("The tile that represents a floor (a passable block)")]
     [SerializeField]public TileBase floorTile = null;
 
+    [Tooltip("The tile that represents a floor (a passable block)")]
+    [SerializeField] public TileBase grassTile = null;
+
+
     [Tooltip("The percent of walls in the initial random map")]
     [Range(0, 1)]
     [SerializeField] float randomFillPercent = 0.5f;
 
-    
-  
 
     [Tooltip("How many steps do we want to simulate?")]
     [SerializeField] int simulationSteps = 20;
@@ -35,16 +39,34 @@ public class TilemapCaveGenerator: MonoBehaviour {
 
     [Tooltip("Length and height of the grid")]
     public static int gridSize = 20;
+
+    private CaveGenerator caveGenerator;
+
+    // Random variable
+    private System.Random rand = new System.Random();
+
+    // Array list that hold the legal floors that players can walk on
+    private ArrayList CacheFloorList = null;
+
+
+    // we save this points for the game objects
+    // variable that represent the left bottom point
+    private Vector3Int CacheLeftBottom = Vector3Int.down;
+
+    // variable that represent the right top bottom
+    private Vector3Int CacheRightTop = Vector3Int.down;
+
+
     //event when SimulationCompleted.
     private static UnityEvent onSimulationCompletedEvent;
 
+    // Unity event call when we finish to create to map, after all the smothoes
     public static UnityEvent getSimulationCompletedEvent(){
         if (onSimulationCompletedEvent == null)
             onSimulationCompletedEvent = new UnityEvent();
         return onSimulationCompletedEvent;
     }
 
-    private CaveGenerator caveGenerator;
 
     void Start()  {
         //To get the same random numbers each time we run the script
@@ -59,7 +81,7 @@ public class TilemapCaveGenerator: MonoBehaviour {
         //Start the simulation
         StartCoroutine(SimulateCavePattern());
 
-        //
+        // init the floors variables
         if(CacheFloorList != null)
             CacheFloorList.Clear();
         CacheFloorList = null;
@@ -80,7 +102,7 @@ public class TilemapCaveGenerator: MonoBehaviour {
             GenerateAndDisplayTexture(caveGenerator.GetMap());
         }
 
-        //Invoke my event
+        // Invoke my event
         if (onSimulationCompletedEvent == null)
             onSimulationCompletedEvent = new UnityEvent();
         onSimulationCompletedEvent.Invoke();
@@ -88,20 +110,34 @@ public class TilemapCaveGenerator: MonoBehaviour {
     }
 
 
-
-    //Generate a black or white texture depending on if the pixel is cave or wall
+    //Generate a floor types - wall, grass, floor texture. depending on the pixel position
     //Display the texture on a plane
     private void GenerateAndDisplayTexture(int[,] data) {
         for (int y = 0; y < gridSize; y++) {
             for (int x = 0; x < gridSize; x++) {
                 var position = new Vector3Int(x, y, 0);
-                var tile = data[x, y] == 1 ? wallTile: floorTile;
+                var tile = grassTile;
+                var dataXY = data[x, y];
+
+
+                // 1 = wall = blue
+                // 2 = grass = green
+                // 0 = floor = brown
+                if(dataXY == 1){
+                    tile = wallTile;
+                }else if(dataXY == 0){
+                    tile = floorTile;
+                }else{
+                    tile = grassTile;
+                }
                 tilemap.SetTile(position, tile);
             }
         }
     }
 
-    //find closer floor to checkCell. return Vector3Int.left if not have.
+    //find closer floor to checkCell.
+    // Vector3Int.down represents a "-1" variable. that we dont calculeted it yet. 
+    // Vector3Int.left represents a "-1" variable. we dont found the floor on the map
     private Vector3Int findeCloserFloor(Vector3Int checkCell){
          int[,] data = caveGenerator.GetMap();
         Vector3Int oldCell = Vector3Int.left;
@@ -109,7 +145,7 @@ public class TilemapCaveGenerator: MonoBehaviour {
 
          for(int i=0; i<gridSize;i++)
                 for(int j=0; j<gridSize ;j++)
-                    if(data[i,j] == 0){
+                    if(isFloor(data[i, j])){
                         Vector3Int newCell = new Vector3Int(i,j,0);
                         int newMinDistance = distance(newCell,checkCell);
                         if(newMinDistance < oldMinDistance){
@@ -121,14 +157,16 @@ public class TilemapCaveGenerator: MonoBehaviour {
         return oldCell; 
     }
 
+
+    // Method to check the distance
     private int distance(Vector3Int newCell,Vector3Int checkCell){
         return System.Math.Abs(newCell.x - checkCell.x) + System.Math.Abs(newCell.y - checkCell.y);
     }
 
-   //Vector3Int.down not finde yet.
-    private Vector3Int CacheLeftBottom = Vector3Int.down;
-     //finde left bottom tile that player can walk on.
-    //return Vector3Int.left if not have.
+
+    // find left bottom tile that player can walk on.
+    // Vector3Int.down represents a "-1" variable. that we dont calculeted it yet. 
+    // Vector3Int.left represents a "-1" variable. we dont found the floor on the map
     public Vector3Int findeLeftBottomFloor(){
         if(CacheLeftBottom == Vector3Int.down){
             CacheLeftBottom = findeCloserFloor(Vector3Int.zero);
@@ -136,10 +174,8 @@ public class TilemapCaveGenerator: MonoBehaviour {
         return CacheLeftBottom;                                
     }
 
-    //Vector3Int.down not finde yet.
-    private Vector3Int CacheRightTop = Vector3Int.down;
-    //like findeLeftBottomFloor just Right Top
-     public Vector3Int findeRightTopFloor(){
+    // same same like "findeLeftBottomFloor" but at another position.
+    public Vector3Int findeRightTopFloor(){
         Vector3Int RightTopCell = new Vector3Int(gridSize-1,gridSize-1,0);
         if(CacheRightTop == Vector3Int.down){
             CacheRightTop = findeCloserFloor(RightTopCell);
@@ -147,18 +183,16 @@ public class TilemapCaveGenerator: MonoBehaviour {
         return CacheRightTop;                     
     }
 
-    //pull random tile that player can walk on.
-    //return Vector3Int.left if not have.
-    private System.Random rand = new System.Random();
-    private ArrayList CacheFloorList = null; 
+
+    // pull random legal tile that player can walk on.
+    // return Vector3Int.left represents a "-1" variable. we dont found the floor on the map
     public Vector3Int pullRandomFloor(){
-        
         if(CacheFloorList == null){
             CacheFloorList = new ArrayList();
             int[,] data = caveGenerator.GetMap();
             for(int i=0; i<gridSize;i++)
                 for(int j=0; j<gridSize ;j++)
-                    if(data[i,j] == 0)
+                    if(isFloor(data[i,j]))
                         CacheFloorList.Add(new Vector3Int(i,j,0));
         }        
         
@@ -171,4 +205,14 @@ public class TilemapCaveGenerator: MonoBehaviour {
         else
             return Vector3Int.left;
     }
+
+
+    // Method to check if this is legal floor that i can walk on.
+    private bool isFloor(int typeFloor){
+        if(typeFloor == 2 || typeFloor == 0){
+            return true;
+        }
+        return false;
+    }
+
 }
